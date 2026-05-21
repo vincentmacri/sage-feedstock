@@ -32,37 +32,32 @@ outputs:
       script: build-sagelib.sh
     requirements:
       build:
-        - libtool
-        - automake
-        - m4
-        - ${{ compiler('cxx') }}
-        - ${{ compiler('c') }}
-        - ${{ stdlib("c") }}
-        - ${{ compiler('fortran') }}
-        - make
-        - pkg-config
-        - gettext
-        - ninja
-        - jinja2        3.1.*
         - if: build_platform != target_platform
           then:
             - python
             - cross-python_${{ target_platform }}
             - cython        3.1.*
-        - cysignals
-        - memory-allocator
-        - numpy
+        - ${{ compiler('c') }}
+        - ${{ compiler('cxx') }}
+        - ${{ compiler('fortran') }}
+        - ${{ stdlib("c") }}
+        - automake
         - cypari2       >=2.2
+        - cysignals
+        - gettext
         - gmpy2
+        - jinja2        3.1.*
+        - libtool
+        - m4
+        - make
+        - memory-allocator
+        - ninja
         - numpy
+        - numpy
+        - pkg-config
       host:
-        - pip
-        - meson-python
-        - libblas
-        - libcblas
-        - liblapack
-        - liblapacke
-        - libboost-headers
+        # sagelib needs bliss at build time but not at runtime, see sagemath-bliss
+        - bliss >=0.77
         - cliquer       1.23.*
         - cypari2       2.2.*
         - cysignals     1.12.*
@@ -84,11 +79,16 @@ outputs:
         - jinja2        3.1.*
         - jupyter_core  >=5.8.1,<6
         - lcalc         2.1.*
+        - libblas
+        - libboost-headers
         - libbraiding   1.3.1.*
         - libbrial      1.2.*
+        - libcblas
         - libflint
         - libgd         2.3.*
         - libhomfly     1.03.*
+        - liblapack
+        - liblapacke
         - libpng
         - linbox        >=1.7.1
         - lrcalc        2.1.*
@@ -96,12 +96,14 @@ outputs:
         - m4rie
         - maxima        5.47.0.*
         - memory-allocator
+        - meson-python
         - mpc           1.*
         - mpfi          1.5.*
         - mpfr
         - ntl
         - numpy
         - pari
+        - pip
         - pkg-config
         - pkgconfig
         - planarity     4.*
@@ -110,22 +112,21 @@ outputs:
         - python
         - readline
         - rw            0.9.*
+        # sagelib needs sirocco at build time but not at runtime, see sagemath-sirocco
+        - sirocco      >=2.1.1,<3
         - singular      ==4.4.1.p5
         - six
         - symmetrica    3.1.*
         - zlib
+
         # sage runtime deps
         - ipython       >=8.18.1,<9
         - pexpect       >=4.9.0,<5
+
         # for the symlinks
         - threejs-sage
         - notebook
         - jmol
-
-        # sagelib needs bliss at build time but not at runtime, see sagemath-bliss
-        - bliss >=0.77
-        # sagelib needs sirocco at build time but not at runtime, see sagemath-sirocco
-        - sirocco      >=2.1.1,<3
 
       # These dependencies are enough to `import sage` and start `sage` but lots of
       # things do not work. To get all the standard dependencies of Sage, install
@@ -146,23 +147,23 @@ outputs:
         - ${{ pin_compatible("gap-core", upper_bound="x.x") }}
         - ${{ pin_compatible("giac", upper_bound="x.x") }}
         - ${{ pin_compatible("gmpy2", upper_bound="x.x") }}
+        # Disable ipython 8.19.0 which breaks the interactive session, see https://github.com/sagemath/sage/issues/36975
+        - ipython >=8.18.1,<9,!=8.19.0
         - ${{ pin_compatible("jinja2", upper_bound="x.x") }}
         - ${{ pin_compatible("jupyter_core") }}
         - memory-allocator
+        # sage.features.all cannot be loaded without packaging (used by the fricas feature)
+        - packaging
+        - ${{ pin_compatible("pexpect") }}
         - ${{ pin_compatible("pplpy", upper_bound="x.x") }}
         - primecountpy >=0.1.1,<0.2.0
-        - python
-        - ${{ pin_compatible("pexpect") }}
-        - python-lrcalc
         - pytest
+        - python
+        - python-lrcalc
         # Explicitly pin singular since its run_exports is having issues, see https://github.com/conda-forge/singular-feedstock/issues/37
         - singular      ==4.4.1.p5
         - six
         - ${{ pin_compatible("threejs-sage") }}
-        # Disable ipython 8.19.0 which breaks the interactive session, see https://github.com/sagemath/sage/issues/36975
-        - ipython >=8.18.1,<9,!=8.19.0
-        # sage.features.all cannot be loaded without packaging (used by the fricas feature)
-        - packaging
       ignore_run_exports:
         from_package:
           - ${{ compiler('fortran') }}
@@ -266,6 +267,8 @@ outputs:
         - notebook >=7.1.1,<8
         - palp >=2.21,<3
         - pillow >=11.3.0,<12
+        # required for sage.misc.package.pip_installed_packages
+        - pip
         - pkg-config
         - pkgconfig
         - python >=3.9
@@ -286,9 +289,6 @@ outputs:
         - tachyon >=0.99b6,<1
         - widgetsnbextension >=4.0.9,<5
         - zn_poly
-
-        # required for sage.misc.package.pip_installed_packages
-        - pip
     tests:
       - python:
           imports:
