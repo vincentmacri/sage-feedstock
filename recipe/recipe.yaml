@@ -57,7 +57,7 @@ outputs:
         - pkg-config
       host:
         # sagelib needs bliss at build time but not at runtime, see sagemath-bliss
-        - bliss >=0.77
+        - bliss         >=0.77
         - cliquer       1.23.*
         - cypari2       2.2.*
         - cysignals     1.12.*
@@ -113,7 +113,7 @@ outputs:
         - readline
         - rw            0.9.*
         # sagelib needs sirocco at build time but not at runtime, see sagemath-sirocco
-        - sirocco      >=2.1.1,<3
+        - sirocco       >=2.1.1,<3
         - singular      ==4.4.1.p5
         - six
         - symmetrica    3.1.*
