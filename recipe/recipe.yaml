@@ -138,6 +138,7 @@ outputs:
       # should probably keep sagelib around therefore.
       # See sagelib-feedstock/#169 for details.
       run:
+        - cddlib
         - ${{ pin_compatible("cypari2") }}
         - ${{ pin_compatible("cysignals") }}
         - ${{ pin_compatible("cython") }}
