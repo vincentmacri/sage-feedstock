@@ -1,7 +1,7 @@
 schema_version: 1
 
 context:
-  version: "10.8"
+  version: "10.9"
   name: sage
 
 recipe:
@@ -10,19 +10,19 @@ recipe:
 
 source:
   url: https://github.com/sagemath/sage/archive/${{ version }}.tar.gz
-  sha256: 496f90f77b569cb3c93610219d92d4abd390caf909e11f4f01d0d37d86017c8e
+  sha256: c4cebeebf45412830e35672aab40260852b92e64a29f852c7b467209c9654ebe
   patches:
     # See https://github.com/sagemath/sage/issues/42002
     - 0001-Allow-SageMath-to-start-when-neither-HOME-nor-DOT_SA.patch
-    - 0001-Use-standard-.sage-implementation-in-doctests.patch
-    - 0001-Teach-atomic_write-to-create-the-containing-director.patch
+    - 0002-Teach-atomic_write-to-create-the-containing-director.patch
+    - 0003-Use-standard-.sage-implementation-in-doctests.patch
     # See https://github.com/sagemath/sage/pull/42005
-    - 0002-Do-not-invoke-GAP-when-cross-compiling.patch
+    - 0004-Do-not-invoke-GAP-when-cross-compiling.patch
     # See https://github.com/sagemath/sage/pull/42006
-    - 0003-Do-not-require-ecl-maxima-to-be-executable-when-cros.patch
+    - 0005-Do-not-require-ecl-maxima-to-be-executable-when-cros.patch
 
 build:
-  number: 2
+  number: 0
   skip: win or match(python, "<3.12") or match(python, ">3.14")
 
 outputs:
@@ -32,64 +32,62 @@ outputs:
       script: build-sagelib.sh
     requirements:
       build:
-        - libtool
-        - automake
-        - m4
-        - ${{ compiler('cxx') }}
+        - if: build_platform != target_platform
+          then:
+            - python
+            - cross-python_${{ target_platform }}
+            - cython        3.2.*
         - ${{ compiler('c') }}
-        - ${{ stdlib("c") }}
+        - ${{ compiler('cxx') }}
         - ${{ compiler('fortran') }}
-        - make
-        - pkg-config
-        - gettext
-        - ninja
-        - jinja2        3.1.*
-        - if: build_platform != target_platform
-          then: python
-        - if: build_platform != target_platform
-          then: cross-python_${{ target_platform }}
-        - if: build_platform != target_platform
-          then: cython        3.1.*
-        - cysignals
-        - memory-allocator
-        - numpy
+        - ${{ stdlib("c") }}
+        - automake
         - cypari2       >=2.2
+        - cysignals
+        - gettext
         - gmpy2
+        - jinja2        3.1.*
+        - libtool
+        - m4
+        - make
+        - memory-allocator
+        - ninja
         - numpy
+        - pkg-config
       host:
-        - pip
-        - meson-python
-        - libblas
-        - libcblas
-        - liblapack
-        - liblapacke
-        - libboost-headers
+        # sagelib needs bliss at build time but not at runtime, see sagemath-bliss
+        - bliss         >=0.77
         - cliquer       1.23.*
         - cypari2       2.2.*
         - cysignals     1.12.*
-        - cython        3.1.*
+        - cython        3.2.*
         - ecl           >=24.5.10,<25
         - eclib
         - ecm           7.*
         - expat
         - fflas-ffpack  2.5.*
         - future
-        - gap-core      4.14.0.*
+        - gap-core      4.15.1.*
         - giac          1.9.*
         - givaro        4.2.*
         - glpk
         - gmp
-        - gmpy2         >=2.2.1,<3
+        - gmpy2         >=2.3.0,<3
         - gsl
         - iml           1.0.*
         - jinja2        3.1.*
-        - jupyter_core  >=5.8.1,<6
+        - jupyter_core  >=5.9.1,<6
         - lcalc         2.1.*
-        - libbraiding   1.3.1.*
+        - libblas
+        - libboost-headers
+        - libbraiding   1.3.2.*
         - libbrial      1.2.*
+        - libcblas
         - libflint
         - libgd         2.3.*
-        - libhomfly     1.03.*
+        - libhomfly     1.04.*
+        - liblapack
+        - liblapacke
         - libpng
         - linbox        >=1.7.1
         - lrcalc        2.1.*
@@ -97,36 +95,37 @@ outputs:
         - m4rie
         - maxima        5.47.0.*
         - memory-allocator
+        - meson-python
         - mpc           1.*
         - mpfi          1.5.*
         - mpfr
         - ntl
         - numpy
         - pari
+        - pip
         - pkg-config
         - pkgconfig
         - planarity     4.*
         - ppl           1.2.*
-        - pplpy         0.8.*
+        - pplpy         0.9.*
         - python
         - readline
         - rw            0.9.*
+        # sagelib needs sirocco at build time but not at runtime, see sagemath-sirocco
+        - sirocco       >=2.1.1,<3
         - singular      ==4.4.1.p5
         - six
         - symmetrica    3.1.*
         - zlib
+
         # sage runtime deps
-        - ipython       >=8.18.1,<9
+        - ipython       >=9.12.0,<10
         - pexpect       >=4.9.0,<5
+
         # for the symlinks
         - threejs-sage
         - notebook
         - jmol
-
-        # sagelib needs bliss at build time but not at runtime, see sagemath-bliss
-        - bliss >=0.77
-        # sagelib needs sirocco at build time but not at runtime, see sagemath-sirocco
-        - sirocco      >=2.1.1,<3
 
       # These dependencies are enough to `import sage` and start `sage` but lots of
       # things do not work. To get all the standard dependencies of Sage, install
@@ -138,6 +137,7 @@ outputs:
       # should probably keep sagelib around therefore.
       # See sagelib-feedstock/#169 for details.
       run:
+        - cddlib
         - ${{ pin_compatible("cypari2") }}
         - ${{ pin_compatible("cysignals") }}
         - ${{ pin_compatible("cython") }}
@@ -147,23 +147,23 @@ outputs:
         - ${{ pin_compatible("gap-core", upper_bound="x.x") }}
         - ${{ pin_compatible("giac", upper_bound="x.x") }}
         - ${{ pin_compatible("gmpy2", upper_bound="x.x") }}
+        - ipython >=9.12.0,<10
         - ${{ pin_compatible("jinja2", upper_bound="x.x") }}
         - ${{ pin_compatible("jupyter_core") }}
         - memory-allocator
-        - ${{ pin_compatible("pplpy", upper_bound="x.x") }}
-        - primecountpy >=0.1.1,<0.2.0
-        - python
+        - mpmath >=1.4.1,<2
+        # sage.features.all cannot be loaded without packaging (used by the fricas feature)
+        - packaging
         - ${{ pin_compatible("pexpect") }}
-        - python-lrcalc
+        - ${{ pin_compatible("pplpy", upper_bound="x.x") }}
+        - primecountpy >=0.2.1,<0.3.0
         - pytest
+        - python
+        - python-lrcalc
         # Explicitly pin singular since its run_exports is having issues, see https://github.com/conda-forge/singular-feedstock/issues/37
         - singular      ==4.4.1.p5
         - six
         - ${{ pin_compatible("threejs-sage") }}
-        # Disable ipython 8.19.0 which breaks the interactive session, see https://github.com/sagemath/sage/issues/36975
-        - ipython >=8.18.1,<9,!=8.19.0
-        # sage.features.all cannot be loaded without packaging (used by the fricas feature)
-        - packaging
       ignore_run_exports:
         from_package:
           - ${{ compiler('fortran') }}
@@ -245,51 +245,49 @@ outputs:
         # are at least 1.0.0, we limit the version to the next major release.
         - blas-devel
         - conway-polynomials >=0.10
-        - cvxopt >=1.3.2,<2
+        - cvxopt >=1.3.3,<2
         - cypari2 >=2.2.4,<3
         - flintqs >=1.0,<2
         - fplll >=5.5.0,<6
         - fpylll >=0.6.4
-        - gap-defaults >=4.14.0
+        - gap-defaults >=4.15.1
         - gfan >=0.6.2
-        - ipykernel >=6.30.1,<7
-        - ipywidgets >=8.1.1,<9
+        - ipykernel >=7.2.0,<8
+        - ipywidgets >=8.1.8,<9
         - jmol >=14.29.52,<15
-        - jupyter_client >=8.3.1,<9
-        - matplotlib-base >=3.10.5,<4
+        - jupyter_client >=8.8.0,<9
+        - matplotlib-base >=3.10.8,<4
         - maxima >=5.46.0,<6
-        # mpmath 1.4.* leads to lots of assert type(man) == MPZ failures
-        - mpmath >=1.3.0,<1.4
-        - nbclient >=0.8.0,<0.9
-        - nbconvert >=7.9.2,<8
-        - nbformat >=5.9.2,<6
-        - networkx >=3.5,<4
-        - notebook >=7.1.1,<8
+        - mpmath >=1.4.1,<1.5
+        - nbclient >=0.10.4,<0.11
+        - nbconvert >=7.17.0,<8
+        - nbformat >=5.10.4,<6
+        - networkx >=3.6.1,<4
+        - notebook >=7.5.5,<8
         - palp >=2.21,<3
-        - pillow >=11.3.0,<12
+        - pillow >=12.1.1,<13
+        # required for sage.misc.package.pip_installed_packages
+        - pip
         - pkg-config
         - pkgconfig
         - python >=3.9
-        - pythran >=0.18.0,<0.19
-        - pytz >=2025.2
-        - rpy2 >=3.4.5,<4
+        - pythran >=0.18.1,<0.19
+        - pytz >=2026.1
+        - rpy2 >=3.6.7,<4
         - rubiks >=20070912
         - sagemath-db-combinatorial-designs >=20140630
         - sagemath-db-elliptic-curves >=0.8.1
         - sagemath-db-graphs >=20210214
         - sagemath-db-polytopes >=20170220
         - sagetex >=3.6.1,<4
-        - scipy >=1.15.2,<2
-        - sphinx >=8.2.3,<9
+        - scipy >=1.17.1,<2
+        - sphinx >=9.1.0,<10
         - sqlite >=3.36,<4
         - sympow >=2.023.6,<3
-        - sympy >=1.12.1,<2
+        - sympy >=1.14.0,<2
         - tachyon >=0.99b6,<1
-        - widgetsnbextension >=4.0.9,<5
+        - widgetsnbextension >=4.0.15,<5
         - zn_poly
-
-        # required for sage.misc.package.pip_installed_packages
-        - pip
     tests:
       - python:
           imports:
@@ -338,11 +336,11 @@ about:
   license_file: COPYING.txt
   summary: Open Source Mathematical Software
   description: |
-     SageMath is a free open-source mathematics software system. It builds on top of many existing open-source packages.
-     On conda-forge it is split into several related packages:
-     * sagelib — the Python package sage with minimal dependencies to be able to `import sage.all`
-     * sage — the standard distribution of SageMath, i.e., ``sagelib`` with all standard dependencies
-     * sagemath-* — optional parts of SageMath that are not automatically installed by `sage`
+    SageMath is a free open-source mathematics software system. It builds on top of many existing open-source packages.
+    On conda-forge it is split into several related packages:
+    * sagelib — the Python package sage with minimal dependencies to be able to `import sage.all`
+    * sage — the standard distribution of SageMath, i.e., ``sagelib`` with all standard dependencies
+    * sagemath-* — optional parts of SageMath that are not automatically installed by `sage`
   homepage: https://www.sagemath.org
   repository: https://github.com/sagemath/sage
   documentation: https://doc.sagemath.org
