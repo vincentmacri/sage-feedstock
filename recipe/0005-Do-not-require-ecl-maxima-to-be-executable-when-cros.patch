@@ -33,10 +33,10 @@ index 85db5911c38..8e7a43669e0 100644
 +++ b/src/sage/libs/meson.build
 @@ -15,38 +15,67 @@ if not ecl.found() and not is_windows
  endif
- ecl_bin = find_program('ecl', required: false)
- if ecl_bin.found()
+ system_ecl_bin = find_program('ecl', required: false)
+ if use_system_ecl
 -  maxima_check = run_command(
--    ecl_bin,
+-    system_ecl_bin,
 -    '--eval',
 -    '(require \'maxima)',
 -    '--eval',
@@ -54,7 +54,7 @@ index 85db5911c38..8e7a43669e0 100644
 +    if maxima_fas != ''
 +      if meson.can_run_host_binaries()
 +        maxima_check = run_command(
-+          ecl_bin,
++          system_ecl_bin,
 +          '--eval',
 +          '(require \'maxima "' + maxima_fas + '")',
 +          '--eval',
@@ -69,7 +69,7 @@ index 85db5911c38..8e7a43669e0 100644
 +    else
 +      if meson.can_run_host_binaries()
 +        maxima_check = run_command(
-+          ecl_bin,
++          system_ecl_bin,
 +          '--eval',
 +          '(require \'maxima)',
 +          '--eval',
@@ -88,7 +88,7 @@ index 85db5911c38..8e7a43669e0 100644
 +            'maxima.fas',
 +          )
 +          maxima_check = run_command(
-+            ecl_bin,
++            sytem_ecl_bin,
 +            '--eval',
 +            '(require \'maxima "' + maxima_fas + '")',
 +            '--eval',
@@ -109,11 +109,11 @@ index 85db5911c38..8e7a43669e0 100644
 -    sage_maxima = join_paths(
 -      get_option('SAGE_LOCAL'),
 -      'lib',
--      'ecl',
+-      'ecl-' + ecl_version,
 -      'maxima.fas',
 -    )
 -    maxima_check = run_command(
--      ecl_bin,
+-      system_ecl_bin,
 -      '--eval',
 -      '(require \'maxima "' + sage_maxima + '")',
 -      '--eval',
