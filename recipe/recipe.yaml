@@ -12,8 +12,6 @@ source:
   url: https://github.com/sagemath/sage/archive/${{ version }}.tar.gz
   sha256: 6960e1b4c33b77bbdff4928b37ad6682a6c5b0762a0bee5c9757aa6b790bbdf6
   patches:
-    # See https://github.com/sagemath/sage/issues/42002
-    - 0001-Allow-SageMath-to-start-when-neither-HOME-nor-DOT_SA.patch
     - 0002-Teach-atomic_write-to-create-the-containing-director.patch
     - 0003-Use-standard-.sage-implementation-in-doctests.patch
     # See https://github.com/sagemath/sage/pull/42005
