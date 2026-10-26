@@ -89,7 +89,7 @@ outputs:
         - lrcalc        2.1.*
         - m4ri
         - m4rie
-        - maxima        5.47.0.*
+        - maxima        5.49.0.*
         - memory-allocator
         - meson-python
         - mpc           1.*
@@ -253,7 +253,7 @@ outputs:
         - jmol >=14.29.52,<15
         - jupyter_client >=8.8.0,<9
         - matplotlib-base >=3.10.8,<4
-        - maxima >=5.46.0,<6
+        - maxima >=5.49.0,<6
         - mpmath >=1.4.1,<1.5
         - nbclient >=0.10.4,<0.11
         - nbconvert >=7.17.0,<8
