@@ -15,7 +15,7 @@ source:
     - 0002-Teach-atomic_write-to-create-the-containing-director.patch
     - 0003-Use-standard-.sage-implementation-in-doctests.patch
     # See https://github.com/sagemath/sage/pull/42006
-    - 0005-Do-not-require-ecl-maxima-to-be-executable-when-cros.patch
+    #- 0005-Do-not-require-ecl-maxima-to-be-executable-when-cros.patch
 
 build:
   number: 0
